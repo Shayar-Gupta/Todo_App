@@ -56,5 +56,5 @@ Contributions are welcome! If you would like to contribute, please fork the repo
 
 For questions or feedback, feel free to reach out to me via:
 
-- **Email**: sandygupta695@example.com
+- **Email**: sandygupta695@gmail.com
 - **GitHub**: [Shayar-Gupta](https://github.com/Shayar-Gupta)
