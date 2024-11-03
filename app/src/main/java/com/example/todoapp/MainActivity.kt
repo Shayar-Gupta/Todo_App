@@ -1,7 +1,9 @@
 package com.example.todoapp
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +27,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,7 +46,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -52,6 +58,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.res.ResourcesCompat
 import com.example.todoapp.ui.theme.TodoAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -81,26 +88,48 @@ fun MainPage() {
     val myContext = LocalContext.current
     val itemList = readData(myContext)
     val focusManager = LocalFocusManager.current
+    val isFocused = remember { mutableStateOf(false) }
 
     val deleteDialogStatus = remember { mutableStateOf(false) }
     val clickedItemIndex = remember { mutableStateOf(0) }
     val updateDialogStatus = remember { mutableStateOf(false) }
     val clickedItem = remember { mutableStateOf("") }
     val textDialogStatus = remember { mutableStateOf(false) }
+    val sortClicked = remember { mutableStateOf(false) }
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Heading
-        Text(
-            text = "My To-Do List",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 16.dp),
-            fontFamily = FontFamily(Font(R.font.montserrat_extrabolditalic))
-        )
+        // Heading with Sort Button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Heading
+            Text(
+                text = "My To-Do List",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 16.dp),
+                fontFamily = FontFamily(Font(R.font.montserrat_extrabolditalic))
+            )
+
+            IconButton(onClick = {
+                itemList.reverse()
+                sortClicked.value = !sortClicked.value;
+            }) {
+                Icon(
+                    imageVector = if (sortClicked.value) Icons.Rounded.KeyboardArrowDown else Icons.Rounded.KeyboardArrowUp,
+                    contentDescription = "sort the task",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
 
         // Input Row
         Row(
@@ -113,18 +142,31 @@ fun MainPage() {
                 value = todoName.value,
                 onValueChange = { todoName.value = it },
                 maxLines = 4,
-                label = { Text(text = "What do you need to do?", color = Color.Gray, fontFamily = FontFamily(Font(R.font.montserrat_bold))
-                ) },
+                label = {
+                    Text(
+                        text = "What do you need to do?",
+                        color = Color.Gray,
+                        fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                    )
+                },
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                textStyle = TextStyle( fontFamily = FontFamily(Font(R.font.montserrat_regular)) ),
+                textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.montserrat_regular))),
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 4.dp)
+                    .onFocusChanged { focusState ->
+                        isFocused.value = focusState.isFocused
+                        // Reset the input field if it loses focus and is empty
+                        if (!focusState.isFocused && todoName.value.isEmpty()) {
+                            todoName.value = ""
+                        }
+                    }
+
             )
 
             // Add Button
@@ -136,7 +178,7 @@ fun MainPage() {
                         todoName.value = ""
                         focusManager.clearFocus()
                     } else {
-                        Toast.makeText(myContext, "Please write a To-Do", Toast.LENGTH_SHORT).show()
+                        showCustomToast(myContext, "Please write a To-Do")
                     }
                 },
                 modifier = Modifier.size(48.dp)
@@ -224,21 +266,39 @@ fun MainPage() {
         if (deleteDialogStatus.value) {
             AlertDialog(
                 onDismissRequest = { deleteDialogStatus.value = false },
-                title = { Text(text = "Delete Task", fontFamily = FontFamily(Font(R.font.montserrat_bold))) },
-                text = { Text(text = "Are you sure you want to delete this task?", fontFamily = FontFamily(Font(R.font.montserrat_regular))) },
+                title = {
+                    Text(
+                        text = "Delete this Task..?",
+                        fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                    )
+                },
+                text = {
+                    Text(
+                        text = clickedItem.value,
+                        fontFamily = FontFamily(Font(R.font.montserrat_regular))
+                    )
+                },
                 confirmButton = {
                     TextButton(onClick = {
                         itemList.removeAt(clickedItemIndex.value)
                         writeData(itemList, myContext)
                         deleteDialogStatus.value = false
-                        Toast.makeText(myContext, "Task deleted", Toast.LENGTH_SHORT).show()
+                        showCustomToast(myContext, "Task deleted")
                     }) {
-                        Text(text = "Yes", color = MaterialTheme.colorScheme.error, fontFamily = FontFamily(Font(R.font.montserrat_bold)))
+                        Text(
+                            text = "Yes",
+                            color = MaterialTheme.colorScheme.error,
+                            fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                        )
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { deleteDialogStatus.value = false }) {
-                        Text(text = "No", color = MaterialTheme.colorScheme.primary, fontFamily = FontFamily(Font(R.font.montserrat_bold)))
+                        Text(
+                            text = "No",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                        )
                     }
                 }
             )
@@ -248,7 +308,12 @@ fun MainPage() {
         if (updateDialogStatus.value) {
             AlertDialog(
                 onDismissRequest = { updateDialogStatus.value = false },
-                title = { Text(text = "Update Task", fontFamily = FontFamily(Font(R.font.montserrat_bold))) },
+                title = {
+                    Text(
+                        text = "Update Task",
+                        fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                    )
+                },
                 text = {
                     TextField(
                         value = clickedItem.value,
@@ -256,7 +321,7 @@ fun MainPage() {
                         colors = TextFieldDefaults.textFieldColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant
                         ),
-                        textStyle = TextStyle( fontFamily = FontFamily(Font(R.font.montserrat_regular)) )
+                        textStyle = TextStyle(fontFamily = FontFamily(Font(R.font.montserrat_regular)))
                     )
 
                 },
@@ -265,14 +330,22 @@ fun MainPage() {
                         itemList[clickedItemIndex.value] = clickedItem.value
                         writeData(itemList, myContext)
                         updateDialogStatus.value = false
-                        Toast.makeText(myContext, "Task updated", Toast.LENGTH_SHORT).show()
+                        showCustomToast(myContext, "Task updated")
                     }) {
-                        Text(text = "Update", fontFamily = FontFamily(Font(R.font.montserrat_bold)), color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            text = "Change",
+                            fontFamily = FontFamily(Font(R.font.montserrat_bold)),
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { updateDialogStatus.value = false }) {
-                        Text(text = "Cancel", fontFamily = FontFamily(Font(R.font.montserrat_bold)), color = MaterialTheme.colorScheme.error)
+                        Text(
+                            text = "No",
+                            fontFamily = FontFamily(Font(R.font.montserrat_bold)),
+                            color = MaterialTheme.colorScheme.error
+                        )
                     }
                 }
             )
@@ -282,14 +355,44 @@ fun MainPage() {
         if (textDialogStatus.value) {
             AlertDialog(
                 onDismissRequest = { textDialogStatus.value = false },
-                title = { Text(text = "Task Details", fontFamily = FontFamily(Font(R.font.montserrat_bold))) },
-                text = { Text(text = clickedItem.value, fontFamily = FontFamily(Font(R.font.montserrat_regular))) },
+                title = {
+                    Text(
+                        text = "Gotta do it, buddy",
+                        fontFamily = FontFamily(Font(R.font.montserrat_bold))
+                    )
+                },
+                text = {
+                    Text(
+                        text = clickedItem.value,
+                        fontFamily = FontFamily(Font(R.font.montserrat_regular))
+                    )
+                },
                 confirmButton = {
                     TextButton(onClick = { textDialogStatus.value = false }) {
-                        Text(text = "Close", fontFamily = FontFamily(Font(R.font.montserrat_bold)), color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            text = "Okay",
+                            fontFamily = FontFamily(Font(R.font.montserrat_bold)),
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
         }
     }
+}
+
+// Function to show a custom toast message
+fun showCustomToast(context: Context, message: String) {
+    val toast = Toast.makeText(context, message, Toast.LENGTH_LONG)
+    val textView = TextView(context).apply {
+        text = message
+        textSize = 18f
+        setTextColor(Color.White.toArgb())
+        typeface = ResourcesCompat.getFont(context, R.font.montserrat_regular)
+        setPadding(24, 16, 24, 16)
+        background = context.getDrawable(R.drawable.toast_background)
+    }
+
+    toast.view = textView
+    toast.show()
 }
