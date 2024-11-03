@@ -5,8 +5,11 @@ A simple and elegant Todo application built using Jetpack Compose and Material3 
 ## Features
 
 - **Add Tasks**: Easily add new tasks to your to-do list.
+- **View Tasks**: View tasks you want.
 - **Remove Tasks**: Remove tasks you no longer need.
 - **Update Tasks**: Modify existing tasks with ease.
+- **Sort Tasks**: Sort tasks as recent to old.
+- **Custom Toast**: Used a custom toast.
 - **Data Persistence**: All tasks are stored locally on the device, ensuring your data is safe even when the app is closed.
 - **Cool UI**: A modern and user-friendly interface built with Jetpack Compose and Material3 for a better user experience.
 
