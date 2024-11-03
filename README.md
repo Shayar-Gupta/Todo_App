@@ -19,7 +19,7 @@ A simple and elegant Todo application built using Jetpack Compose and Material3 
 
 ## Screenshots
 
-![Main Screen](screenshots/main_screen.png)  
+<img src="screenshots/main_screen.png" alt="Main Screen" width="300"/>
 *Main Screen of the Todo App*
 
 ### Clone the Repository
@@ -56,5 +56,5 @@ Contributions are welcome! If you would like to contribute, please fork the repo
 
 For questions or feedback, feel free to reach out to me via:
 
-- **Email**: sandygupta695@example.com
+- **Email**: sandygupta695@gmail.com
 - **GitHub**: [Shayar-Gupta](https://github.com/Shayar-Gupta)
