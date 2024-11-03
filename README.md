@@ -18,9 +18,30 @@ A simple and elegant Todo application built using Jetpack Compose and Material3 
 - **Local Storage**: Uses local storage to persist user data.
 
 ## Screenshots
-
-<img src="screenshots/main_screen.png" alt="Main Screen" width="300"/>
-*Main Screen of the Todo App*
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/main_screen.png" alt="Main Screen" width="250"/>
+      <p><em>Main Screen</em></p>
+    </td>
+    <td align="center">
+      <img src="screenshots/view_task.png" alt="View Task" width="250"/>
+      <p><em>View Task</em></p>
+    </td>
+    <td align="center">
+      <img src="screenshots/update_task.png" alt="Update Task" width="250"/>
+      <p><em>Update Task</em></p>
+    </td>
+    <td align="center">
+      <img src="screenshots/delete_task.png" alt="Delete Task" width="250"/>
+      <p><em>Delete Task</em></p>
+    </td>
+    <td align="center">
+      <img src="screenshots/sort_task.png" alt="Sort Task" width="250"/>
+      <p><em>Sort Task</em></p>
+    </td>
+  </tr>
+</table>
 
 ### Clone the Repository
 
