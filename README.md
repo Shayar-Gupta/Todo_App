@@ -64,6 +64,17 @@ cd todo-app
 1. Connect your Android device or start an emulator.
 2. Click on the `Run` button in Android Studio.
 
+3. ## Download the APK
+
+You can download the debug version of the Todo App APK from the link below:
+[Download Todo App (Debug)](TodoApp/app/build/outputs/apk/debug/todo-app.apk)
+
+### Installation Instructions
+1. Click the link above to download the APK file.
+2. Transfer the APK to your Android device.
+3. Enable "Install Unknown Apps" on your device if required.
+4. Locate the APK file on your device and install it.
+
 ## Usage
 
 1. Launch the app on your device.
