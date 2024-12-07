@@ -67,7 +67,7 @@ cd todo-app
 3. ## Download the APK
 
 You can download the debug version of the Todo App APK from the link below:
-[Download Todo App (Debug)](TodoApp/app/build/outputs/apk/debug/todo-app.apk)
+[Download Todo App (Debug)](Todo_App/app/build/outputs/apk/debug/todo-app.apk)
 
 ### Installation Instructions
 1. Click the link above to download the APK file.
